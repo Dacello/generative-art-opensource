@@ -1,14 +1,10 @@
-const fs = require("fs");
-const { createCanvas, loadImage } = require("canvas");
+const fs = require('fs');
+const {createCanvas, loadImage} = require('canvas');
 const dir = __dirname;
-const {
-  width,
-  height,
-  config,
-} = require("./config");
-const console = require("console");
-const canvas = createCanvas(width, height);
-const ctx = canvas.getContext("2d");
+const console = require('console');
+const {X, Y, WIDTH, HEIGHT} = require('./config')
+const canvas = createCanvas(WIDTH, HEIGHT);
+const ctx = canvas.getContext('2d');
 
 const saveImage = (filename) => {
   fs.writeFileSync(
@@ -17,45 +13,40 @@ const saveImage = (filename) => {
   );
 };
 
-const writeMetaData = (_data) => {
-  fs.writeFileSync('./output/_metadata.json', _data);
-};
-
-const loadAttributeImages = ({name, type}) => {
+const loadAttributeLayerImages = ({name, type}) => {
   return new Promise(async (resolve) => {
-    const image = await loadImage(`${dir}/config/attributes/${name}/${type}.png`)
+    const image = await loadImage(`${dir}/config/attributes/${name}/${type}.png`);
+
     resolve(image);
   });
 }
 
-const startCreating = async ({attributes} = config) => {
+const generateImage = async (config) => {
   try {
-    writeMetaData('');
+    const attributeLayers = config.attributes.map(loadAttributeLayerImages);
+    const loadedAttributeLayers = await Promise.all(attributeLayers)
 
-    const attributeImages = attributes.map(loadAttributeImages);
-  
-    const loadedAttributeImages = await Promise.all(attributeImages)
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(X, Y, WIDTH, HEIGHT);
     
-    loadedAttributeImages.forEach((img) => {
-      ctx.drawImage(img, 0, 0, width, height);
+    loadedAttributeLayers.forEach((img) => {
+      ctx.drawImage(img, X, Y, WIDTH, HEIGHT);
     });
-    
-    const metadata = {
-      filename: `${config.name}.png`,
-      date: Date.now(),
-      ...config
-    };
-  
-    saveImage(metadata.filename);
 
-    writeMetaData(JSON.stringify(metadata));
+    saveImage(`${config.name}.png`);
 
-    console.log("Image generated based on config", config)
+    console.log('\n Image generated based on the following config:\n', config);
   } catch(e) {
-    console.error("ERROR", e)
+    console.error("ERROR", e);
   }
 };
 
-// Initiate code
-startCreating();
+function run() {
+  try {
+    const config = JSON.parse(process.argv[2]);
+    generateImage(config);
+  } catch(e) {
+    console.error('\n You have provided an invalid character config! Aborting.');
+  }  
+}
+
+run();

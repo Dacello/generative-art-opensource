@@ -1,19 +1,13 @@
-const width = 1000
-const height = 1000
-const config = {
-  attributes: [
-    {name: 'race', type: 'human'},
-    {name: 'class', type: 'fighter'},
-    {name: 'face', type: 'angry'},
-    {name: 'hair', type: 'black'},
-    {name: 'weapon', type: 'longsword'},
-  ],
-  name: "Dacello",
-  description: "Baydayss"
-}
+
+const WIDTH = 1000
+const HEIGHT = 1000
+const X = 0
+const Y = 0
+
 
 module.exports = {
-  width,
-  height,
-  config
+  WIDTH,
+  HEIGHT,
+  X,
+  Y
 }
