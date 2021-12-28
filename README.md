@@ -1,4 +1,4 @@
-# Dynamic Layered Image Generator
+# Simple Art Engine
 
 This is based on code created by [**HashLips Art Engine**](https://github.com/HashLips/hashlips_art_engine)
 
