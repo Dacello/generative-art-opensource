@@ -1,81 +1,41 @@
-const fs = require('fs')
-const {createCanvas, loadImage} = require('canvas')
-const console = require('console')
-const {baseUri, X, Y, WIDTH, HEIGHT} = require('./config')
-const canvas = createCanvas(WIDTH, HEIGHT)
-const ctx = canvas.getContext('2d')
-const basePath = process.cwd();
-const buildDir = `${basePath}/build`;
-const layersDir = `${basePath}/layers`;
+const basePath = process.cwd()
+const {run, buildSetup} = require(`${basePath}/src/main.js`)
+const {INVALID_CONFIG_ERROR} = require(`${basePath}/constants/errors`)
 
-
-const buildSetup = () => {
-  if (fs.existsSync(buildDir)) {
-    fs.rmdirSync(buildDir, { recursive: true });
-  }
-  fs.mkdirSync(buildDir);
-  fs.mkdirSync(`${buildDir}/json`);
-  fs.mkdirSync(`${buildDir}/images`);
-};
-
-const writeMetaData = (data) => {
-  fs.writeFileSync(`${buildDir}/json/_metadata.json`, JSON.stringify(data));
-};
-
-const saveImage = (filename) => {
-  fs.writeFileSync(
-    `${buildDir}/images/${filename}`,
-    canvas.toBuffer('image/png')
-  )
-}
-
-const getMetadata = (config) => {
-  return {
-    date: Date.now(),
-    image: `${baseUri}/${config.name}.png`,
-    ...config
-  }
-}
-
-const getLayerImagePath = ({name, type}) => {
-  return `${layersDir}/${name}/${type}.png`
-}
-
-const loadLayerImages = (layer) => {
-  return new Promise(async (resolve) => {
-    const imagePath = getLayerImagePath(layer)
-    const image = await loadImage(imagePath)
-
-    resolve(image)
-  })
-}
-
-const generateImage = async (config) => {
+const validateConfig = (config) => {
   try {
-    const loadedLayers = await Promise.all(config.attributes.map(loadLayerImages))
-
-    ctx.clearRect(X, Y, WIDTH, HEIGHT)
+    let valid = true, i = 0
     
-    loadedLayers.forEach((img) => ctx.drawImage(img, X, Y, WIDTH, HEIGHT))
+    while (valid && i < config.attributes.length) {
+      const {name, type} = config.attributes[i]
+      valid = typeof name === 'string'  && typeof type === 'string'
+      i++
+    }
 
-    saveImage(`${config.name}.png`)
-    writeMetaData(getMetadata(config))
-
-    console.log('\nImage generated based on the following config:\n', config)
+    return valid
   } catch(e) {
-    console.error("ERROR", e)
+    console.error(e)
+
+    return false
   }
 }
 
-function run() {
-  buildSetup()
+const getConfig = () => {
+  if (process.argv[2]) {
+    return JSON.parse(process.argv[2])
+  }
 
-  try {
-    const config = JSON.parse(process.argv[2])
-    generateImage(config)
-  } catch(e) {
-    console.error('\n You have provided an invalid character config! Aborting.')
-  }  
+  return require(`${basePath}/config`)
 }
 
-run()
+
+(() => {
+  const config = getConfig()
+
+  if (!validateConfig(config)) {
+    return console.error(INVALID_CONFIG_ERROR)
+  }
+
+  buildSetup(config)
+  run(config)
+})()

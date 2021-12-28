@@ -1,12 +1,15 @@
-
-const WIDTH = 1000
-const HEIGHT = 1000
-const X = 0
-const Y = 0
+/**
+ * Add image config here. Below is an example of valid config 
 
 module.exports = {
-  WIDTH,
-  HEIGHT,
-  X,
-  Y
+  "attributes": [
+    {"name": "race", "type": "human"},
+    {"name": "class", "type": "fighter"},
+    {"name": "face", "type": "angry"},
+    {"name": "hair", "type": "black"},
+    {"name": "weapon", "type": "longsword"}
+  ],
+  "name": "Dacello"
 }
+
+ */
