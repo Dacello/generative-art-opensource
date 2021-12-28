@@ -21,5 +21,4 @@ You can run it by passing config one of two ways:
   ```
   npm run build '{"attributes":[{"name":"race","type":"human"},{"name":"class","type":"fighter"},{"name":"face","type":"angry"},{"name":"hair","type":"black"},{"name":"weapon","type":"longsword"}],"name":"Dacello"}'
   ```
-  - *NOTE: `$CONFIG_JSON` should be a stringified JSON object that follows the structure outlined in the configuration section*
-2. Add and export a valid config in `./config/index.js` which will be pulled in if no arguments are passed
+2. Add and export a valid config in `./config/index.js` which will be pulled in if no arguments are passed. In this case just run `npm run build`.
